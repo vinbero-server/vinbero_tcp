@@ -17,6 +17,8 @@ struct tucube_tcp_Interface {
 };
 
 struct tucube_tcp_LocalModule {
+    int socket;
+    pthread_mutex_t* socketMutex;
     const char* address;
     short port;
     int backlog;
