@@ -41,7 +41,12 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.reuseAddress", boolean, &(localModule->reuseAddress), false);
     TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.reusePort", boolean, &(localModule->reusePort), false);
     TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.keepAlive", boolean, &(localModule->keepAlive), false);
-    
+
+    struct sockaddr_in serverAddressSockAddrIn;
+    memset(serverAddressSockAddrIn.sin_zero, 0, 1 * sizeof(serverAddressSockAddrIn.sin_zero));
+    serverAddressSockAddrIn.sin_family = AF_INET; 
+    inet_aton(localModule->address, &serverAddressSockAddrIn.sin_addr);
+    serverAddressSockAddrIn.sin_port = htons(localModule->port);
     if((localModule->serverSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
         warn("%s: %u", __FILE__, __LINE__);
         return -1;
