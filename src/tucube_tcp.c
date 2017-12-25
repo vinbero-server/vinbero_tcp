@@ -1,11 +1,15 @@
+#include <arpa/inet.h>
 #include <dlfcn.h>
 #include <err.h>
 #include <fcntl.h>
+#include <netinet/in.h>
 #include <pthread.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <tucube/tucube_Module.h>
 #include <tucube/tucube_IModule.h>
@@ -47,7 +51,7 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     serverAddressSockAddrIn.sin_family = AF_INET; 
     inet_aton(localModule->address, &serverAddressSockAddrIn.sin_addr);
     serverAddressSockAddrIn.sin_port = htons(localModule->port);
-    if((localModule->serverSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
+    if((localModule->socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
         warn("%s: %u", __FILE__, __LINE__);
         return -1;
     }
@@ -55,21 +59,20 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
         warn("%s: %u", __FILE__, __LINE__);
         return -1;
     }
-    if(setsockopt(localModule->socket, SOL_SOCKET, SO_REUSEPORT, localModule->reusePort ? &(const int){1} : &(const int){0}}, sizeof(int)) == -1) {
+    if(setsockopt(localModule->socket, SOL_SOCKET, SO_REUSEPORT, localModule->reusePort ? &(const int){1} : &(const int){0}, sizeof(int)) == -1) {
         warn("%s: %u", __FILE__, __LINE__);
         return -1;
     }
-    if(bind(localModule->serverSocket, (struct sockaddr*)&serverAddressSockAddrIn, sizeof(struct sockaddr)) == -1) {
+    if(bind(localModule->socket, (struct sockaddr*)&serverAddressSockAddrIn, sizeof(struct sockaddr)) == -1) {
         warn("%s: %u", __FILE__, __LINE__);
         return -1;
     }
-    if(listen(localModule->serverSocket, localModule->backlog) == -1) {
+    if(listen(localModule->socket, localModule->backlog) == -1) {
         warn("%s: %u", __FILE__, __LINE__);
-        return -1
+        return -1;
     }
     localModule->socketMutex = malloc(sizeof(pthread_mutex_t));
     pthread_mutex_init(localModule->socketMutex, NULL);
-    
     struct tucube_Module_Ids childModuleIds;
     GENC_ARRAY_LIST_INIT(&childModuleIds);
     TUCUBE_CONFIG_GET_CHILD_MODULE_IDS(config, module->id, &childModuleIds);
