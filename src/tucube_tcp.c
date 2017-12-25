@@ -41,8 +41,30 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.reuseAddress", boolean, &(localModule->reuseAddress), false);
     TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.reusePort", boolean, &(localModule->reusePort), false);
     TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.keepAlive", boolean, &(localModule->keepAlive), false);
-
-
+    
+    if((localModule->serverSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
+        warn("%s: %u", __FILE__, __LINE__);
+        return -1;
+    }
+    if(setsockopt(localModule->socket, SOL_SOCKET, SO_REUSEADDR, localModule->reuseAddress ? &(const int){1} : &(const int){0}, sizeof(int)) == -1) {
+        warn("%s: %u", __FILE__, __LINE__);
+        return -1;
+    }
+    if(setsockopt(localModule->socket, SOL_SOCKET, SO_REUSEPORT, localModule->reusePort ? &(const int){1} : &(const int){0}}, sizeof(int)) == -1) {
+        warn("%s: %u", __FILE__, __LINE__);
+        return -1;
+    }
+    if(bind(localModule->serverSocket, (struct sockaddr*)&serverAddressSockAddrIn, sizeof(struct sockaddr)) == -1) {
+        warn("%s: %u", __FILE__, __LINE__);
+        return -1;
+    }
+    if(listen(localModule->serverSocket, localModule->backlog) == -1) {
+        warn("%s: %u", __FILE__, __LINE__);
+        return -1
+    }
+    localModule->socketMutex = malloc(sizeof(pthread_mutex_t));
+    pthread_mutex_init(localModule->socketMutex, NULL);
+    
     struct tucube_Module_Ids childModuleIds;
     GENC_ARRAY_LIST_INIT(&childModuleIds);
     TUCUBE_CONFIG_GET_CHILD_MODULE_IDS(config, module->id, &childModuleIds);
