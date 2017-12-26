@@ -63,6 +63,10 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
         warn("%s: %u", __FILE__, __LINE__);
         return -1;
     }
+    if(setsockopt(localModule->socket, SOL_SOCKET, SO_KEEPALIVE, localModule->keepAlive ? &(const int){1} : &(const int){0}, sizeof(int)) == -1) {
+        warn("%s: %u", __FILE__, __LINE__);
+        return -1;
+    }
     if(bind(localModule->socket, (struct sockaddr*)&serverAddressSockAddrIn, sizeof(struct sockaddr)) == -1) {
         warn("%s: %u", __FILE__, __LINE__);
         return -1;
