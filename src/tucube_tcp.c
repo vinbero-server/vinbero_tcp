@@ -92,12 +92,20 @@ int tucube_ICore_service(struct tucube_Module* module, void* args[]) {
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     struct tucube_tcp_LocalModule* localModule = module->localModule.pointer;
     struct tucube_Module* parentModule = GENC_TREE_NODE_GET_PARENT(module);
+    GENC_TREE_NODE_FOR_EACH_CHILD(module, index) {
+        struct tucube_Module* childModule = &GENC_TREE_NODE_GET_CHILD(module, index);
+        struct tucube_tcp_Interface* moduleInterface = childModule->interface;
+        if(moduleInterface->tucube_ICore_service(childModule, NULL) == -1)
+            return -1;
+    }
     return 0;
 }
 
 int tucube_IModule_destroy(struct tucube_Module* module) {
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     struct tucube_tcp_LocalModule* localModule = module->localModule.pointer;
+    pthread_mutex_destroy(localModule->socketMutex);
+    free(localModule->socketMutex);
     GENC_TREE_NODE_FOR_EACH_CHILD(module, index) {
         struct tucube_Module* childModule = &GENC_TREE_NODE_GET_CHILD(module, index);
         free(childModule->interface);
