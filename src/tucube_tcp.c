@@ -92,6 +92,11 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
+int tucube_IModule_rInit(struct tucube_Module* module, struct tucube_Config* config, void* args[]) {
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+    return 0;
+}
+
 int tucube_IBasic_service(struct tucube_Module* module, void* args[]) {
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     struct tucube_tcp_LocalModule* localModule = module->localModule.pointer;
@@ -116,5 +121,10 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     }
     free(module->localModule.pointer);
 //    dlclose(module->dlHandle);
+    return 0;
+}
+
+int tucube_IModule_rDestroy(struct tucube_Module* module) {
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
