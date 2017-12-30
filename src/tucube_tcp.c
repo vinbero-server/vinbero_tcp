@@ -37,7 +37,6 @@ TUCUBE_IBASIC_FUNCTIONS;
 int tucube_IModule_init(struct tucube_Module* module, struct tucube_Config* config, void* args[]) {
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     module->localModule.pointer = malloc(1 * sizeof(struct tucube_tcp_LocalModule));
-
     struct tucube_tcp_LocalModule* localModule = module->localModule.pointer;
     TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.address", string, &(localModule->address), "0.0.0.0");
     TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.port", integer, &(localModule->port), 80);
@@ -45,7 +44,6 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.reuseAddress", boolean, &(localModule->reuseAddress), false);
     TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.reusePort", boolean, &(localModule->reusePort), false);
     TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.keepAlive", boolean, &(localModule->keepAlive), false);
-
     struct sockaddr_in serverAddressSockAddrIn;
     memset(serverAddressSockAddrIn.sin_zero, 0, 1 * sizeof(serverAddressSockAddrIn.sin_zero));
     serverAddressSockAddrIn.sin_family = AF_INET; 
@@ -112,6 +110,11 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
 
 int tucube_IModule_destroy(struct tucube_Module* module) {
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
+    return 0;
+}
+
+int tucube_IModule_rDestroy(struct tucube_Module* module) {
+warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     struct tucube_tcp_LocalModule* localModule = module->localModule.pointer;
     pthread_mutex_destroy(localModule->socketMutex);
     free(localModule->socketMutex);
@@ -121,10 +124,5 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     }
     free(module->localModule.pointer);
 //    dlclose(module->dlHandle);
-    return 0;
-}
-
-int tucube_IModule_rDestroy(struct tucube_Module* module) {
-warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
