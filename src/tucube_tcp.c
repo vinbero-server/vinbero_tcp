@@ -40,12 +40,12 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     module->version = "0.0.1";
     module->localModule.pointer = malloc(1 * sizeof(struct tucube_tcp_LocalModule));
     struct tucube_tcp_LocalModule* localModule = module->localModule.pointer;
-    TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.address", string, &(localModule->address), "0.0.0.0");
-    TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.port", integer, &(localModule->port), 80);
-    TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.backlog", integer, &(localModule->backlog), 1024);
-    TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.reuseAddress", boolean, &(localModule->reuseAddress), false);
-    TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.reusePort", boolean, &(localModule->reusePort), false);
-    TUCUBE_CONFIG_GET(config, module->id, "tucube_tcp.keepAlive", boolean, &(localModule->keepAlive), false);
+    TUCUBE_CONFIG_GET(config, module, "tucube_tcp.address", string, &(localModule->address), "0.0.0.0");
+    TUCUBE_CONFIG_GET(config, module, "tucube_tcp.port", integer, &(localModule->port), 80);
+    TUCUBE_CONFIG_GET(config, module, "tucube_tcp.backlog", integer, &(localModule->backlog), 1024);
+    TUCUBE_CONFIG_GET(config, module, "tucube_tcp.reuseAddress", boolean, &(localModule->reuseAddress), false);
+    TUCUBE_CONFIG_GET(config, module, "tucube_tcp.reusePort", boolean, &(localModule->reusePort), false);
+    TUCUBE_CONFIG_GET(config, module, "tucube_tcp.keepAlive", boolean, &(localModule->keepAlive), false);
     struct sockaddr_in serverAddressSockAddrIn;
     memset(serverAddressSockAddrIn.sin_zero, 0, 1 * sizeof(serverAddressSockAddrIn.sin_zero));
     serverAddressSockAddrIn.sin_family = AF_INET; 
@@ -83,8 +83,10 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     GENC_TREE_NODE_FOR_EACH_CHILD(module, index) {
         struct tucube_Module* childModule = &GENC_TREE_NODE_GET_CHILD(module, index);
         childModule->interface = malloc(1 * sizeof(struct tucube_tcp_Interface));
-        struct tucube_tcp_Interface* moduleInterface = childModule->interface;
-        if((moduleInterface->tucube_IBasic_service = dlsym(childModule->dlHandle, "tucube_IBasic_service")) == NULL) {
+        struct tucube_tcp_Interface* childInterface = childModule->interface;
+        int errorVariable;
+        TUCUBE_MODULE_DLSYM(childInterface, childModule->dlHandle, tucube_IBasic_service, &errorVariable);
+        if(errorVariable == 1) {
             warnx("%s: %u: Unable to find tucube_IBasic_service()", __FILE__, __LINE__);
             return -1;
         }
@@ -103,8 +105,8 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     struct tucube_Module* parentModule = GENC_TREE_NODE_GET_PARENT(module);
     GENC_TREE_NODE_FOR_EACH_CHILD(module, index) {
         struct tucube_Module* childModule = &GENC_TREE_NODE_GET_CHILD(module, index);
-        struct tucube_tcp_Interface* moduleInterface = childModule->interface;
-        if(moduleInterface->tucube_IBasic_service(childModule, (void*[]){&localModule->socket, NULL}) == -1)
+        struct tucube_tcp_Interface* childInterface = childModule->interface;
+        if(childInterface->tucube_IBasic_service(childModule, (void*[]){&localModule->socket, NULL}) == -1)
             return -1;
     }
     return 0;
