@@ -11,16 +11,16 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <tucube/tucube_Module.h>
-#include <tucube/tucube_IModule.h>
-#include <tucube/tucube_IBasic.h>
+#include <vinbero/vinbero_Module.h>
+#include <vinbero/vinbero_IModule.h>
+#include <vinbero/vinbero_IBasic.h>
 #include <libgenc/genc_Tree.h>
 
-struct tucube_tcp_Interface {
-    TUCUBE_IBASIC_FUNCTION_POINTERS;
+struct vinbero_tcp_Interface {
+    VINBERO_IBASIC_FUNCTION_POINTERS;
 };
 
-struct tucube_tcp_LocalModule {
+struct vinbero_tcp_LocalModule {
     int socket;
     pthread_mutex_t* socketMutex;
     const char* address;
@@ -31,21 +31,21 @@ struct tucube_tcp_LocalModule {
     bool keepAlive;
 };
 
-TUCUBE_IMODULE_FUNCTIONS;
-TUCUBE_IBASIC_FUNCTIONS;
+VINBERO_IMODULE_FUNCTIONS;
+VINBERO_IBASIC_FUNCTIONS;
 
-int tucube_IModule_init(struct tucube_Module* module, struct tucube_Config* config, void* args[]) {
+int vinbero_IModule_init(struct vinbero_Module* module, struct vinbero_Config* config, void* args[]) {
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
-    module->name = "tucube_tcp";
+    module->name = "vinbero_tcp";
     module->version = "0.0.1";
-    module->localModule.pointer = malloc(1 * sizeof(struct tucube_tcp_LocalModule));
-    struct tucube_tcp_LocalModule* localModule = module->localModule.pointer;
-    TUCUBE_CONFIG_GET(config, module, "tucube_tcp.address", string, &(localModule->address), "0.0.0.0");
-    TUCUBE_CONFIG_GET(config, module, "tucube_tcp.port", integer, &(localModule->port), 80);
-    TUCUBE_CONFIG_GET(config, module, "tucube_tcp.backlog", integer, &(localModule->backlog), 1024);
-    TUCUBE_CONFIG_GET(config, module, "tucube_tcp.reuseAddress", boolean, &(localModule->reuseAddress), false);
-    TUCUBE_CONFIG_GET(config, module, "tucube_tcp.reusePort", boolean, &(localModule->reusePort), false);
-    TUCUBE_CONFIG_GET(config, module, "tucube_tcp.keepAlive", boolean, &(localModule->keepAlive), false);
+    module->localModule.pointer = malloc(1 * sizeof(struct vinbero_tcp_LocalModule));
+    struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
+    VINBERO_CONFIG_GET(config, module, "vinbero_tcp.address", string, &localModule->address, "0.0.0.0");
+    VINBERO_CONFIG_GET(config, module, "vinbero_tcp.port", integer, &localModule->port, 80);
+    VINBERO_CONFIG_GET(config, module, "vinbero_tcp.backlog", integer, &localModule->backlog, 1024);
+    VINBERO_CONFIG_GET(config, module, "vinbero_tcp.reuseAddress", boolean, &localModule->reuseAddress, false);
+    VINBERO_CONFIG_GET(config, module, "vinbero_tcp.reusePort", boolean, &localModule->reusePort, false);
+    VINBERO_CONFIG_GET(config, module, "vinbero_tcp.keepAlive", boolean, &localModule->keepAlive, false);
     struct sockaddr_in serverAddressSockAddrIn;
     memset(serverAddressSockAddrIn.sin_zero, 0, 1 * sizeof(serverAddressSockAddrIn.sin_zero));
     serverAddressSockAddrIn.sin_family = AF_INET; 
@@ -77,53 +77,53 @@ warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     }
     localModule->socketMutex = malloc(sizeof(pthread_mutex_t));
     pthread_mutex_init(localModule->socketMutex, NULL);
-    struct tucube_Module_Ids childModuleIds;
+    struct vinbero_Module_Ids childModuleIds;
     GENC_ARRAY_LIST_INIT(&childModuleIds);
-    TUCUBE_CONFIG_GET_CHILD_MODULE_IDS(config, module->id, &childModuleIds);
+    VINBERO_CONFIG_GET_CHILD_MODULE_IDS(config, module->id, &childModuleIds);
     GENC_TREE_NODE_FOR_EACH_CHILD(module, index) {
-        struct tucube_Module* childModule = &GENC_TREE_NODE_GET_CHILD(module, index);
-        childModule->interface = malloc(1 * sizeof(struct tucube_tcp_Interface));
-        struct tucube_tcp_Interface* childInterface = childModule->interface;
+        struct vinbero_Module* childModule = &GENC_TREE_NODE_GET_CHILD(module, index);
+        childModule->interface = malloc(1 * sizeof(struct vinbero_tcp_Interface));
+        struct vinbero_tcp_Interface* childInterface = childModule->interface;
         int errorVariable;
-        TUCUBE_MODULE_DLSYM(childInterface, childModule->dlHandle, tucube_IBasic_service, &errorVariable);
+        VINBERO_IBASIC_DLSYM(childInterface, childModule->dlHandle, &errorVariable);
         if(errorVariable == 1) {
-            warnx("%s: %u: Unable to find tucube_IBasic_service()", __FILE__, __LINE__);
+            warnx("module %s doesn't satisfy IBAISC interface", childModule->id);
             return -1;
         }
     }
     return 0;
 }
 
-int tucube_IModule_rInit(struct tucube_Module* module, struct tucube_Config* config, void* args[]) {
+int vinbero_IModule_rInit(struct vinbero_Module* module, struct vinbero_Config* config, void* args[]) {
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int tucube_IBasic_service(struct tucube_Module* module, void* args[]) {
+int vinbero_IBasic_service(struct vinbero_Module* module, void* args[]) {
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
-    struct tucube_tcp_LocalModule* localModule = module->localModule.pointer;
-    struct tucube_Module* parentModule = GENC_TREE_NODE_GET_PARENT(module);
+    struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
+    struct vinbero_Module* parentModule = GENC_TREE_NODE_GET_PARENT(module);
     GENC_TREE_NODE_FOR_EACH_CHILD(module, index) {
-        struct tucube_Module* childModule = &GENC_TREE_NODE_GET_CHILD(module, index);
-        struct tucube_tcp_Interface* childInterface = childModule->interface;
-        if(childInterface->tucube_IBasic_service(childModule, (void*[]){&localModule->socket, NULL}) == -1)
+        struct vinbero_Module* childModule = &GENC_TREE_NODE_GET_CHILD(module, index);
+        struct vinbero_tcp_Interface* childInterface = childModule->interface;
+        if(childInterface->vinbero_IBasic_service(childModule, (void*[]){&localModule->socket, NULL}) == -1)
             return -1;
     }
     return 0;
 }
 
-int tucube_IModule_destroy(struct tucube_Module* module) {
+int vinbero_IModule_destroy(struct vinbero_Module* module) {
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
     return 0;
 }
 
-int tucube_IModule_rDestroy(struct tucube_Module* module) {
+int vinbero_IModule_rDestroy(struct vinbero_Module* module) {
 warnx("%s: %u: %s", __FILE__, __LINE__, __FUNCTION__);
-    struct tucube_tcp_LocalModule* localModule = module->localModule.pointer;
+    struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
     pthread_mutex_destroy(localModule->socketMutex);
     free(localModule->socketMutex);
     GENC_TREE_NODE_FOR_EACH_CHILD(module, index) {
-        struct tucube_Module* childModule = &GENC_TREE_NODE_GET_CHILD(module, index);
+        struct vinbero_Module* childModule = &GENC_TREE_NODE_GET_CHILD(module, index);
         free(childModule->interface);
     }
     free(module->localModule.pointer);

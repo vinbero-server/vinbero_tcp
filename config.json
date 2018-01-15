@@ -1,15 +1,15 @@
 {
     "core": {
-        "config": {"tucube.setUid": 1001},
-        "next": ["tucube_tcp"]
+        "config": {"vinbero.setUid": 1001},
+        "next": ["vinbero_tcp"]
     }, 
-    "tucube_tcp": {
-        "path": "/usr/local/lib/tucube/tucube_tcp.so",
-        "config": {"tucube_tcp.port": 8000},
-        "next": ["tucube_mt"]
+    "vinbero_tcp": {
+        "path": "/usr/local/lib/vinbero/vinbero_tcp.so",
+        "config": {"vinbero_tcp.port": 8000},
+        "next": ["vinbero_mt"]
     },
-    "tucube_mt": {
-        "path": "/usr/local/lib/tucube/tucube_mt.so",
+    "vinbero_mt": {
+        "path": "/usr/local/lib/vinbero/vinbero_mt.so",
         "config": {},
         "next": []
     }
