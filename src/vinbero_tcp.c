@@ -80,6 +80,7 @@ int vinbero_IModule_init(struct vinbero_common_Module* module, struct vinbero_co
     GENC_ARRAY_LIST_INIT(&childModuleIds);
     if((ret = vinbero_common_Config_getChildModuleIds(config, module->id, &childModuleIds)) < 0) {
         VINBERO_COMMON_LOG_ERROR("child modules are invalid at module %s", module->id);
+        GENC_ARRAY_LIST_FREE(&childModuleIds);
         return ret;
     }
     GENC_TREE_NODE_FOR_EACH_CHILD(module, index) {
