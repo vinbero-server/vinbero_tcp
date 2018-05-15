@@ -78,13 +78,17 @@ int vinbero_IModule_init(struct vinbero_common_Module* module, struct vinbero_co
     pthread_mutex_init(localModule->socketMutex, NULL);
     struct vinbero_common_Module_Ids childModuleIds;
     GENC_ARRAY_LIST_INIT(&childModuleIds);
-    vinbero_common_Config_getChildModuleIds(config, module->id, &childModuleIds);
+    if((ret = vinbero_common_Config_getChildModuleIds(config, module->id, &childModuleIds)) < 0) {
+        VINBERO_COMMON_LOG_ERROR("child modules are invalid at module %s", module->id);
+        return ret;
+    }
     GENC_TREE_NODE_FOR_EACH_CHILD(module, index) {
         struct vinbero_common_Module* childModule = &GENC_TREE_NODE_GET_CHILD(module, index);
         struct vinbero_IBasic_Interface childInterface;
         VINBERO_IBASIC_DLSYM(&childInterface, &childModule->dlHandle, &ret);
         if(ret < 0) {
             VINBERO_COMMON_LOG_ERROR("module %s doesn't satisfy IBAISC interface", childModule->id);
+            GENC_ARRAY_LIST_FREE(&childModuleIds);
             return ret;
         }
     }
