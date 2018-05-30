@@ -11,18 +11,19 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <vinbero_common/vinbero_common_Call.h>
 #include <vinbero_common/vinbero_common_Config.h>
 #include <vinbero_common/vinbero_common_Log.h>
 #include <vinbero_common/vinbero_common_Module.h>
-#include <vinbero/vinbero_IModule.h>
-#include <vinbero/vinbero_IBasic.h>
+#include <vinbero/vinbero_IMODULE.h>
+#include <vinbero/vinbero_IBASIC.h>
 #include <libgenc/genc_Tree.h>
 
 struct vinbero_tcp_LocalModule {
     int socket;
     pthread_mutex_t* socketMutex;
     const char* address;
-    short port;
+    int port;
     int backlog;
     bool reuseAddress;
     bool reusePort;
@@ -32,8 +33,8 @@ struct vinbero_tcp_LocalModule {
 VINBERO_IMODULE_FUNCTIONS;
 VINBERO_IBASIC_FUNCTIONS;
 
-int vinbero_IModule_init(struct vinbero_common_Module* module, struct vinbero_common_Config* config, void* args[]) {
-    VINBERO_COMMON_LOG_TRACE("in %s(...)", __FUNCTION__);
+int vinbero_IMODULE_init(struct vinbero_common_Module* module, struct vinbero_common_Config* config, void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int ret;
     module->name = "vinbero_tcp";
     module->version = "0.0.1";
@@ -76,61 +77,35 @@ int vinbero_IModule_init(struct vinbero_common_Module* module, struct vinbero_co
     }
     localModule->socketMutex = malloc(sizeof(pthread_mutex_t));
     pthread_mutex_init(localModule->socketMutex, NULL);
-/*
-    struct vinbero_common_Module_Ids childModuleIds;
-    GENC_ARRAY_LIST_INIT(&childModuleIds);
-    if((ret = vinbero_common_Config_getChildModuleIds(config, module->id, &childModuleIds)) < 0) {
-        VINBERO_COMMON_LOG_ERROR("child modules are invalid at module %s", module->id);
-        GENC_ARRAY_LIST_FREE(&childModuleIds);
-        return ret;
-    }
-    GENC_TREE_NODE_FOR_EACH_CHILD(module, index) {
-        struct vinbero_common_Module* childModule = &GENC_TREE_NODE_GET_CHILD(module, index);
-        struct vinbero_IBasic_Interface childInterface;
-        VINBERO_IBASIC_DLSYM(&childInterface, &childModule->dlHandle, &ret);
-        if(ret < 0) {
-            VINBERO_COMMON_LOG_ERROR("module %s doesn't satisfy IBAISC interface", childModule->id);
-            GENC_ARRAY_LIST_FREE(&childModuleIds);
-            return ret;
-        }
-    }
-
-//    module->childRequired = true
-*/
     return 0;
 }
 
-int vinbero_IModule_rInit(struct vinbero_common_Module* module, struct vinbero_common_Config* config, void* args[]) {
-    VINBERO_COMMON_LOG_TRACE("in %s(...)", __FUNCTION__);
+int vinbero_IMODULE_rInit(struct vinbero_common_Module* module, struct vinbero_common_Config* config, void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     return 0;
 }
 
-int vinbero_IBasic_service(struct vinbero_common_Module* module, void* args[]) {
-    VINBERO_COMMON_LOG_TRACE("in %s(...)", __FUNCTION__);
+int vinbero_IBASIC_service(struct vinbero_common_Module* module, void* args[]) {
+    VINBERO_COMMON_LOG_TRACE2();
     int ret;
     struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
     struct vinbero_common_Module* parentModule = GENC_TREE_NODE_GET_PARENT(module);
     GENC_TREE_NODE_FOR_EACH_CHILD(module, index) {
         struct vinbero_common_Module* childModule = &GENC_TREE_NODE_GET_CHILD(module, index);
-        struct vinbero_IBasic_Interface childInterface;
-        VINBERO_IBASIC_DLSYM(&childInterface, &childModule->dlHandle, &ret);
-        if(ret < 0) {
-            VINBERO_COMMON_LOG_FATAL("VINBERO_IBASIC_DLSYM() failed");
+        VINBERO_COMMON_CALL(IBASIC, service, childModule, &ret, childModule, (void*[]){&localModule->socket, NULL});
+        if(ret < 0)
             return ret;
-        }
-        if(childInterface.vinbero_IBasic_service(childModule, (void*[]){&localModule->socket, NULL}) == -1)
-            return -1;
     }
     return 0;
 }
 
-int vinbero_IModule_destroy(struct vinbero_common_Module* module) {
-    VINBERO_COMMON_LOG_TRACE("in %s(...)", __FUNCTION__);
+int vinbero_IMODULE_destroy(struct vinbero_common_Module* module) {
+    VINBERO_COMMON_LOG_TRACE2();
     return 0;
 }
 
-int vinbero_IModule_rDestroy(struct vinbero_common_Module* module) {
-    VINBERO_COMMON_LOG_TRACE("in %s(...)", __FUNCTION__);
+int vinbero_IMODULE_rDestroy(struct vinbero_common_Module* module) {
+    VINBERO_COMMON_LOG_TRACE2();
     struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
     pthread_mutex_destroy(localModule->socketMutex);
     free(localModule->socketMutex);
