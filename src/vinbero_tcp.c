@@ -15,8 +15,8 @@
 #include <vinbero_common/vinbero_common_Config.h>
 #include <vinbero_common/vinbero_common_Log.h>
 #include <vinbero_common/vinbero_common_Module.h>
-#include <vinbero/vinbero_IMODULE.h>
-#include <vinbero/vinbero_IBASIC.h>
+#include <vinbero/vinbero_Interface_MODULE.h>
+#include <vinbero/vinbero_Interface_BASIC.h>
 #include <libgenc/genc_Tree.h>
 
 struct vinbero_tcp_LocalModule {
@@ -30,10 +30,10 @@ struct vinbero_tcp_LocalModule {
     bool keepAlive;
 };
 
-VINBERO_IMODULE_FUNCTIONS;
-VINBERO_IBASIC_FUNCTIONS;
+VINBERO_INTERFACE_MODULE_FUNCTIONS;
+VINBERO_INTERFACE_BASIC_FUNCTIONS;
 
-int vinbero_IMODULE_init(struct vinbero_common_Module* module, struct vinbero_common_Config* config, void* args[]) {
+int vinbero_Interface_MODULE_init(struct vinbero_common_Module* module, struct vinbero_common_Config* config, void* args[]) {
     VINBERO_COMMON_LOG_TRACE2();
     int ret;
     module->name = "vinbero_tcp";
@@ -80,31 +80,31 @@ int vinbero_IMODULE_init(struct vinbero_common_Module* module, struct vinbero_co
     return 0;
 }
 
-int vinbero_IMODULE_rInit(struct vinbero_common_Module* module, struct vinbero_common_Config* config, void* args[]) {
+int vinbero_Interface_MODULE_rInit(struct vinbero_common_Module* module, struct vinbero_common_Config* config, void* args[]) {
     VINBERO_COMMON_LOG_TRACE2();
     return 0;
 }
 
-int vinbero_IBASIC_service(struct vinbero_common_Module* module, void* args[]) {
+int vinbero_Interface_BASIC_service(struct vinbero_common_Module* module, void* args[]) {
     VINBERO_COMMON_LOG_TRACE2();
     int ret;
     struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
     struct vinbero_common_Module* parentModule = GENC_TREE_NODE_GET_PARENT(module);
     GENC_TREE_NODE_FOR_EACH_CHILD(module, index) {
         struct vinbero_common_Module* childModule = &GENC_TREE_NODE_GET_CHILD(module, index);
-        VINBERO_COMMON_CALL(IBASIC, service, childModule, &ret, childModule, (void*[]){&localModule->socket, NULL});
+        VINBERO_COMMON_CALL(BASIC, service, childModule, &ret, childModule, (void*[]){&localModule->socket, NULL});
         if(ret < 0)
             return ret;
     }
     return 0;
 }
 
-int vinbero_IMODULE_destroy(struct vinbero_common_Module* module) {
+int vinbero_Interface_MODULE_destroy(struct vinbero_common_Module* module) {
     VINBERO_COMMON_LOG_TRACE2();
     return 0;
 }
 
-int vinbero_IMODULE_rDestroy(struct vinbero_common_Module* module) {
+int vinbero_Interface_MODULE_rDestroy(struct vinbero_common_Module* module) {
     VINBERO_COMMON_LOG_TRACE2();
     struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
     pthread_mutex_destroy(localModule->socketMutex);
