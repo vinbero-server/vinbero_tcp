@@ -33,19 +33,19 @@ struct vinbero_tcp_LocalModule {
 VINBERO_INTERFACE_MODULE_FUNCTIONS;
 VINBERO_INTERFACE_BASIC_FUNCTIONS;
 
-int vinbero_Interface_MODULE_init(struct vinbero_common_Module* module, struct vinbero_common_Config* config, void* args[]) {
+int vinbero_Interface_MODULE_init(struct vinbero_common_Module* module) {
     VINBERO_COMMON_LOG_TRACE2();
     int ret;
     module->name = "vinbero_tcp";
     module->version = "0.0.1";
     module->localModule.pointer = malloc(1 * sizeof(struct vinbero_tcp_LocalModule));
     struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
-    vinbero_common_Config_getString(config, module, "vinbero_tcp.address", &localModule->address, "0.0.0.0");
-    vinbero_common_Config_getInt(config, module, "vinbero_tcp.port", &localModule->port, 80);
-    vinbero_common_Config_getInt(config, module, "vinbero_tcp.backlog", &localModule->backlog, 1024);
-    vinbero_common_Config_getBool(config, module, "vinbero_tcp.reuseAddress", &localModule->reuseAddress, false);
-    vinbero_common_Config_getBool(config, module, "vinbero_tcp.reusePort", &localModule->reusePort, false);
-    vinbero_common_Config_getBool(config, module, "vinbero_tcp.keepAlive", &localModule->keepAlive, false);
+    vinbero_common_Config_getString(module->config, module, "vinbero_tcp.address", &localModule->address, "0.0.0.0");
+    vinbero_common_Config_getInt(module->config, module, "vinbero_tcp.port", &localModule->port, 80);
+    vinbero_common_Config_getInt(module->config, module, "vinbero_tcp.backlog", &localModule->backlog, 1024);
+    vinbero_common_Config_getBool(module->config, module, "vinbero_tcp.reuseAddress", &localModule->reuseAddress, false);
+    vinbero_common_Config_getBool(module->config, module, "vinbero_tcp.reusePort", &localModule->reusePort, false);
+    vinbero_common_Config_getBool(module->config, module, "vinbero_tcp.keepAlive", &localModule->keepAlive, false);
     struct sockaddr_in serverAddressSockAddrIn;
     memset(serverAddressSockAddrIn.sin_zero, 0, 1 * sizeof(serverAddressSockAddrIn.sin_zero));
     serverAddressSockAddrIn.sin_family = AF_INET; 
@@ -80,7 +80,7 @@ int vinbero_Interface_MODULE_init(struct vinbero_common_Module* module, struct v
     return 0;
 }
 
-int vinbero_Interface_MODULE_rInit(struct vinbero_common_Module* module, struct vinbero_common_Config* config, void* args[]) {
+int vinbero_Interface_MODULE_rInit(struct vinbero_common_Module* module) {
     VINBERO_COMMON_LOG_TRACE2();
     return 0;
 }
