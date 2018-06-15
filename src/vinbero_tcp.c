@@ -15,8 +15,8 @@
 #include <vinbero_common/vinbero_common_Config.h>
 #include <vinbero_common/vinbero_common_Log.h>
 #include <vinbero_common/vinbero_common_Module.h>
-#include <vinbero/vinbero_Interface_MODULE.h>
-#include <vinbero/vinbero_Interface_BASIC.h>
+#include <vinbero/vinbero_interface_MODULE.h>
+#include <vinbero/vinbero_interface_BASIC.h>
 #include <libgenc/genc_Tree.h>
 
 struct vinbero_tcp_LocalModule {
@@ -33,7 +33,7 @@ struct vinbero_tcp_LocalModule {
 VINBERO_INTERFACE_MODULE_FUNCTIONS;
 VINBERO_INTERFACE_BASIC_FUNCTIONS;
 
-int vinbero_Interface_MODULE_init(struct vinbero_common_Module* module) {
+int vinbero_interface_MODULE_init(struct vinbero_common_Module* module) {
     VINBERO_COMMON_LOG_TRACE2();
     int ret;
     module->name = "vinbero_tcp";
@@ -80,12 +80,12 @@ int vinbero_Interface_MODULE_init(struct vinbero_common_Module* module) {
     return 0;
 }
 
-int vinbero_Interface_MODULE_rInit(struct vinbero_common_Module* module) {
+int vinbero_interface_MODULE_rInit(struct vinbero_common_Module* module) {
     VINBERO_COMMON_LOG_TRACE2();
     return 0;
 }
 
-int vinbero_Interface_BASIC_service(struct vinbero_common_Module* module, void* args[]) {
+int vinbero_interface_BASIC_service(struct vinbero_common_Module* module, void* args[]) {
     VINBERO_COMMON_LOG_TRACE2();
     int ret;
     struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
@@ -99,12 +99,12 @@ int vinbero_Interface_BASIC_service(struct vinbero_common_Module* module, void* 
     return 0;
 }
 
-int vinbero_Interface_MODULE_destroy(struct vinbero_common_Module* module) {
+int vinbero_interface_MODULE_destroy(struct vinbero_common_Module* module) {
     VINBERO_COMMON_LOG_TRACE2();
     return 0;
 }
 
-int vinbero_Interface_MODULE_rDestroy(struct vinbero_common_Module* module) {
+int vinbero_interface_MODULE_rDestroy(struct vinbero_common_Module* module) {
     VINBERO_COMMON_LOG_TRACE2();
     struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
     pthread_mutex_destroy(localModule->socketMutex);
