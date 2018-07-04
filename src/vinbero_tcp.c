@@ -18,7 +18,6 @@
 #include <vinbero/vinbero_interface_MODULE.h>
 #include <vinbero/vinbero_interface_BASIC.h>
 #include <libgenc/genc_Tree.h>
-#include "vinbero_tcp_Version.h"
 
 struct vinbero_tcp_LocalModule {
     int socket;
@@ -38,7 +37,7 @@ int vinbero_interface_MODULE_init(struct vinbero_common_Module* module) {
     VINBERO_COMMON_LOG_TRACE2();
     int ret;
     module->name = "vinbero_tcp";
-    module->version = VINBERO_TCP_VERSION;
+    module->version = "0.0.1";
     module->localModule.pointer = malloc(1 * sizeof(struct vinbero_tcp_LocalModule));
     struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
     vinbero_common_Config_getString(module->config, module, "vinbero_tcp.address", &localModule->address, "0.0.0.0");
