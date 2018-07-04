@@ -37,7 +37,7 @@ before_install:
 
   - pwd
   - git clone https://github.com/vinbero/libvinbero_common
-  - cd libfastdl
+  - cd libvinbero_common
   - mkdir build
   - cd build
   - cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
