@@ -81,6 +81,12 @@ install:
   - cd ../../
 
   - pwd
+  - cd libgaio/build
+  - make
+  - sudo make install
+  - cd ../../
+
+  - pwd
   - cd libfastdl/build
   - make
   - sudo make install
