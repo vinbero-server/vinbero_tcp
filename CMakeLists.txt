@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 project(vinbero_tcp C)
-set(vinbero_tcp_version "0.1.1")
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
+
+set(vinbero_tcp_version "0.1.2")
 set(vinbero_tcp_soversion "0.1")
 
 if(CMAKE_VERSION VERSION_LESS "3.1")
