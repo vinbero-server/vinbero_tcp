@@ -87,12 +87,11 @@ int vinbero_interface_MODULE_rInit(struct vinbero_common_Module* module) {
 }
 
 int vinbero_interface_BASIC_service(struct vinbero_common_Module* module) {
-    VINBERO_COMMON_LOG_TRACE2();
     int ret;
     struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
     struct vinbero_common_Module* parentModule = GENC_TREE_NODE_GET_PARENT(module);
     GENC_TREE_NODE_FOR_EACH_CHILD(module, index) {
-        struct vinbero_common_Module* childModule = &GENC_TREE_NODE_GET_CHILD(module, index);
+        struct vinbero_common_Module* childModule = GENC_TREE_NODE_GET_CHILD(module, index);
         childModule->arg = &localModule->socket;
         VINBERO_COMMON_CALL(BASIC, service, childModule, &ret, childModule);
         if(ret < 0)
