@@ -41,7 +41,7 @@ int vinbero_interface_MODULE_init(struct vinbero_common_Module* module) {
     module->version = VINBERO_TCP_VERSION;
     module->localModule.pointer = malloc(1 * sizeof(struct vinbero_tcp_LocalModule));
     struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
-    vinbero_common_Config_getString(module->config, module, "vinbero_tcp.address", &localModule->address, "0.0.0.0");
+    vinbero_common_Config_getConstring(module->config, module, "vinbero_tcp.address", &localModule->address, "0.0.0.0");
     vinbero_common_Config_getInt(module->config, module, "vinbero_tcp.port", &localModule->port, 80);
     vinbero_common_Config_getInt(module->config, module, "vinbero_tcp.backlog", &localModule->backlog, 1024);
     vinbero_common_Config_getBool(module->config, module, "vinbero_tcp.reuseAddress", &localModule->reuseAddress, false);
