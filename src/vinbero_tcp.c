@@ -20,6 +20,15 @@
 #include <libgenc/genc_Tree.h>
 #include "vinbero_tcp_Version.h"
 
+VINBERO_COM_MODULE_META_INIT(
+    "vinbero_tcp",
+    VINBERO_TCP_VERSION_MAJOR,
+    VINBERO_TCP_VERSION_MINOR,
+    VINBERO_TCP_VERSION_PATCH,
+    "BASIC",
+    "BASIC"
+);
+
 struct vinbero_tcp_LocalModule {
     int socket;
     pthread_mutex_t* socketMutex;
@@ -33,13 +42,10 @@ struct vinbero_tcp_LocalModule {
 
 VINBERO_IFACE_MODULE_FUNCTIONS;
 VINBERO_IFACE_BASIC_FUNCTIONS;
-VINBERO_COM_MODULE_META_INIT("vinbero_tcp", VINBERO_TCP_VERSION_MAJOR, VINBERO_TCP_VERSION_MINOR, VINBERO_TCP_VERSION_PATCH, "BASIC", "BASIC");
 
 int vinbero_iface_MODULE_init(struct vinbero_com_Module* module) {
     VINBERO_COM_LOG_TRACE2();
     int ret;
-    module->name = "vinbero_tcp";
-    module->version = VINBERO_TCP_VERSION;
     module->localModule.pointer = malloc(1 * sizeof(struct vinbero_tcp_LocalModule));
     struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
     vinbero_com_Config_getConstring(module->config, module, "vinbero_tcp.address", &localModule->address, "0.0.0.0");
