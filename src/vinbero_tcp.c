@@ -20,6 +20,18 @@
 #include <libgenc/genc_Tree.h>
 #include "vinbero_tcp_Version.h"
 
+VINBERO_COM_MODULE_META_NAME("vinbero_tcp")
+VINBERO_COM_MODULE_META_LICENSE("MPL-2.0")
+VINBERO_COM_MODULE_META_VERSION(
+    VINBERO_TCP_VERSION_MAJOR,
+    VINBERO_TCP_VERSION_MINOR,
+    VINBERO_TCP_VERSION_PATCH
+)
+
+VINBERO_COM_MODULE_META_IN_IFACES("BASIC")
+VINBERO_COM_MODULE_META_OUT_IFACES("BASIC")
+VINBERO_COM_MODULE_META_CHILD_COUNT(-1, -1)
+
 struct vinbero_tcp_LocalModule {
     int socket;
     pthread_mutex_t* socketMutex;
@@ -31,14 +43,12 @@ struct vinbero_tcp_LocalModule {
     bool keepAlive;
 };
 
-VINBERO_IFACE_MODULE_FUNCTIONS;
-VINBERO_IFACE_BASIC_FUNCTIONS;
+VINBERO_IFACE_MODULE_FUNCS;
+VINBERO_IFACE_BASIC_FUNCS;
 
 int vinbero_iface_MODULE_init(struct vinbero_com_Module* module) {
     VINBERO_COM_LOG_TRACE2();
     int ret;
-    module->name = "vinbero_tcp";
-    module->version = VINBERO_TCP_VERSION;
     module->localModule.pointer = malloc(1 * sizeof(struct vinbero_tcp_LocalModule));
     struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
     vinbero_com_Config_getConstring(module->config, module, "vinbero_tcp.address", &localModule->address, "0.0.0.0");
@@ -90,8 +100,8 @@ int vinbero_iface_BASIC_service(struct vinbero_com_Module* module) {
     int ret;
     struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
     struct vinbero_com_Module* parentModule = GENC_TREE_NODE_GET_PARENT(module);
-    GENC_TREE_NODE_FOR_EACH_CHILD(module, index) {
-        struct vinbero_com_Module* childModule = GENC_TREE_NODE_GET_CHILD(module, index);
+    GENC_TREE_NODE_FOREACH(module, index) {
+        struct vinbero_com_Module* childModule = GENC_TREE_NODE_RAW_GET(module, index);
         childModule->arg = &localModule->socket;
         VINBERO_COM_CALL(BASIC, service, childModule, &ret, childModule);
         if(ret < 0)
@@ -111,6 +121,5 @@ int vinbero_iface_MODULE_rDestroy(struct vinbero_com_Module* module) {
     pthread_mutex_destroy(localModule->socketMutex);
     free(localModule->socketMutex);
     free(module->localModule.pointer);
-//    dlclose(module->dlHandle);
     return 0;
 }
