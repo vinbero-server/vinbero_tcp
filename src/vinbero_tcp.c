@@ -48,7 +48,6 @@ VINBERO_IFACE_BASIC_FUNCS;
 
 int vinbero_iface_MODULE_init(struct vinbero_com_Module* module) {
     VINBERO_COM_LOG_TRACE2();
-    int ret;
     module->localModule.pointer = malloc(1 * sizeof(struct vinbero_tcp_LocalModule));
     struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
     vinbero_com_Config_getConstring(module->config, module, "vinbero_tcp.address", &localModule->address, "0.0.0.0");
@@ -99,7 +98,6 @@ int vinbero_iface_MODULE_rInit(struct vinbero_com_Module* module) {
 int vinbero_iface_BASIC_service(struct vinbero_com_Module* module) {
     int ret;
     struct vinbero_tcp_LocalModule* localModule = module->localModule.pointer;
-    struct vinbero_com_Module* parentModule = GENC_TREE_NODE_GET_PARENT(module);
     GENC_TREE_NODE_FOREACH(module, index) {
         struct vinbero_com_Module* childModule = GENC_TREE_NODE_RAW_GET(module, index);
         childModule->arg = &localModule->socket;
