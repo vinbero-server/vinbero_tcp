@@ -18,7 +18,7 @@
 #include <vinbero/vinbero_iface_MODULE.h>
 #include <vinbero/vinbero_iface_BASIC.h>
 #include <libgenc/genc_Tree.h>
-#include "vinbero_tcp_Version.h"
+#include "config.h"
 
 VINBERO_COM_MODULE_META_NAME("vinbero_tcp")
 VINBERO_COM_MODULE_META_LICENSE("MPL-2.0")
