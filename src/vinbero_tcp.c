@@ -65,15 +65,17 @@ int vinbero_iface_MODULE_init(struct vinbero_com_Module* module) {
         VINBERO_COM_LOG_ERROR("socket(...) failed");
         return -errno;
     }
-    if(setsockopt(localModule->socket, SOL_SOCKET, SO_REUSEADDR, localModule->reuseAddress ? &(const int){1} : &(const int){0}, sizeof(int)) == -1) {
+    const int ONE = 1;
+    const int ZERO = 0;
+    if(setsockopt(localModule->socket, SOL_SOCKET, SO_REUSEADDR, localModule->reuseAddress ? &ONE : &ZERO, sizeof(int)) == -1) {
         VINBERO_COM_LOG_ERROR("setsockopt(...) failed");
         return -errno;
     }
-    if(setsockopt(localModule->socket, SOL_SOCKET, SO_REUSEPORT, localModule->reusePort ? &(const int){1} : &(const int){0}, sizeof(int)) == -1) {
+    if(setsockopt(localModule->socket, SOL_SOCKET, SO_REUSEPORT, localModule->reusePort ? &ONE : &ZERO, sizeof(int)) == -1) {
         VINBERO_COM_LOG_ERROR("setsockopt(...) failed");
         return -errno;
     }
-    if(setsockopt(localModule->socket, SOL_SOCKET, SO_KEEPALIVE, localModule->keepAlive ? &(const int){1} : &(const int){0}, sizeof(int)) == -1) {
+    if(setsockopt(localModule->socket, SOL_SOCKET, SO_KEEPALIVE, localModule->keepAlive ? &ONE : &ZERO, sizeof(int)) == -1) {
         VINBERO_COM_LOG_ERROR("setsockopt(...) failed");
         return -errno;
     }
